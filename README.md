@@ -1,41 +1,15 @@
-# STAPI: Sentence Transformers API
+# Jina Embeddings Docker Deployment
+
+## Credit to [Sentence Transformers API From substratusai](https://github.com/substratusai/stapi) for the amazing work!
 
 OpenAI compatible embedding API that uses Sentence Transformer for embeddings
 
-Container Image: `ghcr.io/substratusai/stapi`
-
-Support the project by adding a star! ❤️  
-Join us on Discord:  
-<a href="https://discord.gg/JeXhcmjZVm">
-<img alt="discord-invite" src="https://dcbadge.vercel.app/api/server/JeXhcmjZVm?style=flat">
-</a>
-
-## Install
-There are 2 options to install STAPI: Docker or local Python install.
+Container Image: `ghcr.io/betterandbetterii/jina-embeddings-docker`
 
 ### Install (Docker)
 Run the API locally using Docker:
 ```bash
-docker run -p 8080:8080 -d ghcr.io/substratusai/stapi
-```
-
-### Install (Local python)
-Install and run the API server locally using Python. Only supports python 3.9, 3.10 and 3.11.
-
-Clone the repo:
-```bash
-git clone https://github.com/substratusai/stapi
-cd stapi
-```
-
-Install dependencies:
-```bash
-pip3 install -r requirements.txt
-```
-
-Run the webserver:
-```bash
-uvicorn main:app --port 8080 --reload
+docker run --runtime nvidia --gpus all -e MODEL=jinaai/jina-embeddings-v3 -p 8080:8080 -v /srv/jinaai/models/cache:/root/.cache -d ghcr.io/betterandbetterii/stapi:main
 ```
 
 ## Usage
