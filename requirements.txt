@@ -1,5 +1,4 @@
 fastapi
 sentence-transformers
-flash-attn
 uvicorn[standard]
 einops
