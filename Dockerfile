@@ -16,6 +16,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
 COPY main.py .
+COPY pre_download.py .
+
+RUN python3 pre_download.py
+
 COPY entrypoint.sh /usr/local/bin/
 CMD [ "entrypoint.sh" ]
 
