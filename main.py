@@ -1,4 +1,4 @@
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Any
 from contextlib import asynccontextmanager
 import os
 
@@ -18,6 +18,15 @@ class EmbeddingRequest(BaseModel):
         examples=[model_name],
         default=model_name,
     )
+    
+    # 添加一个额外的字典字段来接收任意参数
+    kwargs: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Additional keyword arguments to pass to the encode function"
+    )
+    
+    class Config:
+        extra = "allow"  # 允许额外的字段
 
 
 class EmbeddingData(BaseModel):
@@ -50,8 +59,16 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/v1/embeddings")
 async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
     model: SentenceTransformer = models[model_name]
+    # 获取所有额外的参数
+    encode_kwargs = dict(item.kwargs)
+    # 添加请求中的其他额外字段
+    encode_kwargs.update({
+        k: v for k, v in item.model_dump().items() 
+        if k not in {"input", "model", "kwargs"}
+    })
+    
     if isinstance(item.input, str):
-        vectors = model.encode(item.input)
+        vectors = model.encode(item.input, **encode_kwargs)
         tokens = len(vectors)
         return EmbeddingResponse(
             data=[EmbeddingData(embedding=vectors, index=0, object="embedding")],
@@ -68,7 +85,7 @@ async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
                     status_code=400,
                     detail="input needs to be an array of strings or a string",
                 )
-            vectors = model.encode(text_input)
+            vectors = model.encode(text_input, **encode_kwargs)
             tokens += len(vectors)
             embeddings.append(
                 EmbeddingData(embedding=vectors, index=index, object="embedding")
